@@ -26,9 +26,9 @@ package htsjdk.variant.variantcontext.filter;
 import htsjdk.variant.variantcontext.VariantContext;
 
 /**
+ *
  * API for filtering VariantContexts
- * <p/>
- * $Id$
+ *
  */
 public interface VariantContextFilter {
 

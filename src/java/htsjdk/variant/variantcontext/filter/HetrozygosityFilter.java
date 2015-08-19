@@ -4,7 +4,11 @@ import htsjdk.variant.variantcontext.Genotype;
 import htsjdk.variant.variantcontext.VariantContext;
 
 /**
- * Created by farjoun on 6/25/15.
+ * A Predicate on VariantContexts that either returns true at hetrozygous sites (invertible to false).
+ * if optional "sample" argument to constructor is given, the genotype of that sample will be examined,
+ * otherwise first genotype will be used.
+ *
+ * Missing sample, or no genotype will result in an exception being thrown.
  */
 public class HetrozygosityFilter implements VariantContextFilter {
 
@@ -23,10 +27,9 @@ public class HetrozygosityFilter implements VariantContextFilter {
         this.sample = sample;
     }
 
-    HetrozygosityFilter(boolean keepHets) {
+    public HetrozygosityFilter(boolean keepHets) {
         this(keepHets, null);
     }
-
 
     /* @return true if the VariantContext not be kept, otherwise false
     * Assumes that <sample> is a sample in the vcf. */
@@ -36,9 +39,17 @@ public class HetrozygosityFilter implements VariantContextFilter {
         final Genotype gt;
         if (sample == null) {
             gt = record.getGenotype(0);
+            if (gt == null) {
+                throw new UnsupportedOperationException("Cannot find any genotypes in VariantContext: "+ record);
+            }
         } else {
             gt = record.getGenotype(sample);
+            if (gt == null) {
+                throw new UnsupportedOperationException("Cannot find sample requested: "+ sample);
+            }
         }
+
+        //XOR operator to reverse behaviour if keepHets is true.
         return gt.isHet() ^ keepHets;
     }
 }

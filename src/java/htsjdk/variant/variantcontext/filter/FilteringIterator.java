@@ -2,7 +2,6 @@ package htsjdk.variant.variantcontext.filter;
 
 import htsjdk.samtools.util.CloseableIterator;
 import htsjdk.samtools.util.CloserUtil;
-import htsjdk.samtools.util.PeekableIterator;
 import htsjdk.variant.variantcontext.VariantContext;
 
 import java.util.Iterator;
@@ -10,11 +9,11 @@ import java.util.NoSuchElementException;
 
 /**
  * A simple filtering iterator for VariantContexts that takes a base iterator
- * and a VariantContextFilter. Similiar in idea to the SAMRecordFilter. Different from
- * Picard's VariantFilter in that it actually filters the
+ * and a VariantContextFilter. Similar to SAMRecordFilter, but simpler since it doesn't need to worry about read-pairs.
  */
-public class FilteringIterator implements CloseableIterator<VariantContext> {
-    private final PeekableIterator<VariantContext> iterator;
+
+public class FilteringIterator implements CloseableIterator<VariantContext> , Iterable<VariantContext>{
+    private final Iterator<VariantContext> iterator;
     private final VariantContextFilter filter;
     private VariantContext next = null;
 
@@ -25,7 +24,7 @@ public class FilteringIterator implements CloseableIterator<VariantContext> {
      * @param filter   the filter (which may be a FilterAggregator)
      */
     public FilteringIterator(final Iterator<VariantContext> iterator, final VariantContextFilter filter) {
-        this.iterator = new PeekableIterator<VariantContext>(iterator);
+        this.iterator = iterator;
         this.filter = filter;
         next = getNextRecord();
     }
@@ -33,6 +32,8 @@ public class FilteringIterator implements CloseableIterator<VariantContext> {
     public void close() {
         CloserUtil.close(iterator);
     }
+
+
 
     /**
      * Returns true if the iteration has more elements.
@@ -88,4 +89,8 @@ public class FilteringIterator implements CloseableIterator<VariantContext> {
         return null;
     }
 
+    @Override
+    public Iterator<VariantContext> iterator() {
+        return this;
+    }
 }

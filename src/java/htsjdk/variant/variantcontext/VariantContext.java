@@ -1012,7 +1012,7 @@ public class VariantContext implements Feature, Serializable {
     }
 
     public Genotype getGenotype(int ith) {
-        return genotypes.get(ith);
+        return genotypes.size() > ith ? genotypes.get(ith) : null;
     }
 
 
